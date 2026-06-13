@@ -33,3 +33,5 @@ Antes de iniciar, copiá los archivos `.env.example` como `.env` dentro de cada 
 - En `FRONTEND_URL` indicar la URL pública del frontend para CORS y los enlaces de verificación.
 
 Las URLs públicas y credenciales de evaluación deben agregarse aquí una vez realizados los despliegues.
+
+El archivo `vercel.json` de la raíz configura Vercel para instalar y compilar exclusivamente `frontend/` dentro del monorepo y redirige las rutas de React Router a `index.html`.
