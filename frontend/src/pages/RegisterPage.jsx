@@ -23,7 +23,7 @@ export function RegisterPage() {
   async function resend() {
     setError("");
     try {
-      const data = await api("/auth/resend-verification", { method: "POST", body: JSON.stringify({ email: registeredEmail }) });
+      const data = await api("/auth/resend-verification", { method: "POST", body: JSON.stringify({ email: registeredEmail || form.email }) });
       setMessage(data.message);
     } catch (err) { setError(err.message); }
   }
@@ -34,6 +34,7 @@ export function RegisterPage() {
       <FormField label="Correo electrónico" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
       <FormField label="Contraseña" type="password" placeholder="8+ caracteres, mayúscula y número" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
       {error && <p className="form-error" role="alert">{error}</p>}
+      {error.toLowerCase().includes("registrado") && <button className="button button--ghost button--full" type="button" onClick={resend}>Reenviar verificación</button>}
       <button className="button button--primary button--full">Crear cuenta</button>
     </form>}
     <p className="auth-switch">¿Ya tenés una cuenta? <Link to="/login">Iniciar sesión</Link></p>
