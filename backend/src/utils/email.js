@@ -1,8 +1,9 @@
 import nodemailer from "nodemailer";
 
 function createTransporter() {
-  if (process.env.EMAIL_MODE === "json" || !process.env.SMTP_HOST) {
-    return nodemailer.createTransport({ jsonTransport: true });
+  if (process.env.EMAIL_MODE === "json") return nodemailer.createTransport({ jsonTransport: true });
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    throw new Error("Configuración SMTP incompleta");
   }
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -21,5 +22,10 @@ export async function sendVerificationEmail({ email, name, token }) {
     text: `Hola ${name}. Verificá tu cuenta: ${verificationUrl}`,
     html: `<h2>Hola ${name}</h2><p>Activá tu cuenta de Impulso desde el siguiente enlace:</p><p><a href="${verificationUrl}">Verificar mi correo</a></p><p>El enlace vence en 24 horas.</p>`
   });
-  if (process.env.NODE_ENV !== "production") console.info("Email de verificación:", info.message || info);
+  console.info("[email] Verificación procesada", {
+    messageId: info.messageId,
+    accepted: info.accepted,
+    rejected: info.rejected,
+    response: info.response
+  });
 }

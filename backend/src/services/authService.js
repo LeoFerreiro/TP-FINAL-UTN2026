@@ -7,19 +7,27 @@ import { signAccessToken } from "../utils/jwt.js";
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
+async function issueVerificationEmail(user) {
+  const token = crypto.randomBytes(32).toString("hex");
+  user.verificationTokenHash = hashToken(token);
+  user.verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  await userRepository.save(user);
+  await sendVerificationEmail({ email: user.email, name: user.name, token });
+}
+
 export const authService = {
   async register({ name, email, password }) {
     if (await userRepository.findByEmail(email)) throw new AppError("El correo ya está registrado", 409);
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const user = await userRepository.create({
-      name,
-      email,
-      passwordHash: await bcrypt.hash(password, 12),
-      verificationTokenHash: hashToken(verificationToken),
-      verificationExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
-    });
-    await sendVerificationEmail({ email: user.email, name: user.name, token: verificationToken });
+    const user = await userRepository.create({ name, email, passwordHash: await bcrypt.hash(password, 12) });
+    await issueVerificationEmail(user);
     return { id: user.id, email: user.email, message: "Revisá tu correo para activar la cuenta" };
+  },
+  async resendVerification(email) {
+    const user = await userRepository.findByEmail(email);
+    if (!user) return { message: "Si el correo está registrado, enviaremos un nuevo enlace" };
+    if (user.isVerified) throw new AppError("La cuenta ya está verificada", 409);
+    await issueVerificationEmail(user);
+    return { message: "Enviamos un nuevo enlace de verificación" };
   },
   async verifyEmail(token) {
     const user = await userRepository.findByVerificationHash(hashToken(token));
