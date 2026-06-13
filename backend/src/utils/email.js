@@ -15,7 +15,7 @@ function createTransporter() {
 export async function sendVerificationEmail({ email, name, token }) {
   const verificationUrl = `${process.env.FRONTEND_URL}/verificar-email?token=${token}`;
   const info = await createTransporter().sendMail({
-    from: process.env.SMTP_FROM,
+    from: process.env.SMTP_FROM || "Impulso <no-reply@impulso.local>",
     to: email,
     subject: "Verificá tu cuenta de Impulso",
     text: `Hola ${name}. Verificá tu cuenta: ${verificationUrl}`,
