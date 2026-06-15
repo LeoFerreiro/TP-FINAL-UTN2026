@@ -29,3 +29,22 @@ test("al completar una tarea recurrente crea la siguiente fecha seleccionada", a
     taskRepository.create = originals.create;
   }
 });
+
+test("limpiar una completada recurrente detiene y elimina toda su serie", async () => {
+  const originals = { findCompleted: taskRepository.findCompleted, removeCompletedAndSeries: taskRepository.removeCompletedAndSeries };
+  let received;
+  taskRepository.findCompleted = async () => [{ _id: "completed-1", recurrence: { seriesId: "series-1" } }];
+  taskRepository.removeCompletedAndSeries = async (owner, taskIds, seriesIds) => {
+    received = { owner, taskIds, seriesIds };
+    return { deletedCount: 2 };
+  };
+
+  try {
+    const result = await taskService.cleanupCompleted("owner-1", { ids: ["completed-1"], all: false });
+    assert.deepEqual(received, { owner: "owner-1", taskIds: ["completed-1"], seriesIds: ["series-1"] });
+    assert.deepEqual(result, { deletedCount: 2, stoppedSeries: 1 });
+  } finally {
+    taskRepository.findCompleted = originals.findCompleted;
+    taskRepository.removeCompletedAndSeries = originals.removeCompletedAndSeries;
+  }
+});

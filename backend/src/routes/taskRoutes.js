@@ -21,6 +21,7 @@ const taskRules = [
 export const taskRoutes = Router();
 taskRoutes.use(authenticate);
 taskRoutes.get("/", [query("status").optional().isIn(["pending", "in_progress", "completed"]), query("priority").optional().isIn(["low", "medium", "high"]), query("category").optional().isMongoId(), validate], asyncHandler(taskController.list));
+taskRoutes.post("/cleanup-completed", [body("all").optional().isBoolean(), body("ids").optional().isArray(), body("ids.*").optional().isMongoId(), validate], asyncHandler(taskController.cleanupCompleted));
 taskRoutes.get("/:id", [param("id").isMongoId(), validate], asyncHandler(taskController.get));
 taskRoutes.post("/", [...taskRules, validate], asyncHandler(taskController.create));
 taskRoutes.put("/:id", [param("id").isMongoId(), ...taskRules, validate], asyncHandler(taskController.update));

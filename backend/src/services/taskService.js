@@ -66,5 +66,14 @@ export const taskService = {
   },
   async remove(owner, id) {
     if (!(await taskRepository.remove(id, owner))) throw new AppError("Tarea no encontrada", 404);
+  },
+  async cleanupCompleted(owner, { ids, all }) {
+    if (!all && !ids?.length) throw new AppError("Seleccioná al menos una tarea completada", 400);
+    const completed = await taskRepository.findCompleted(owner, all ? undefined : ids);
+    if (!completed.length) return { deletedCount: 0, stoppedSeries: 0 };
+    const taskIds = completed.map((task) => task._id);
+    const seriesIds = [...new Set(completed.map((task) => task.recurrence?.seriesId).filter(Boolean))];
+    const result = await taskRepository.removeCompletedAndSeries(owner, taskIds, seriesIds);
+    return { deletedCount: result.deletedCount, stoppedSeries: seriesIds.length };
   }
 };
