@@ -13,6 +13,18 @@ import { Topbar } from "../components/Topbar.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { demoCategories, demoTasks } from "../data/demoData.js";
 
+function getNextOccurrence(task) {
+  if (!task.recurrence?.enabled) return null;
+  const candidate = new Date(`${task.dueDate.slice(0, 10)}T12:00:00`);
+  const endDate = new Date(`${task.recurrence.endDate.slice(0, 10)}T23:59:59`);
+  for (let offset = 1; offset <= 7; offset += 1) {
+    candidate.setDate(candidate.getDate() + 1);
+    if (candidate > endDate) return null;
+    if (task.recurrence.weekdays.includes(candidate.getDay())) return candidate.toISOString().slice(0, 10);
+  }
+  return null;
+}
+
 function TaskWorkspace({ tasks, categories, counts, category, priority, view, onCategory, onPriority, onView, onCreate, onEdit, onMove, showHeading = false }) {
   return <>{showHeading && <div className="page-heading"><div><p className="eyebrow">Organización</p><h2>Mis tareas</h2><p>Creá, priorizá y avanzá cada tarea desde un solo lugar.</p></div></div>}<section className="toolbar"><button className="button button--primary" onClick={() => onCreate("pending")}><Plus size={19} />Nueva tarea</button><select value={category} onChange={(event) => onCategory(event.target.value)}><option value="">Todas las categorías</option>{categories.map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}</select><select value={priority} onChange={(event) => onPriority(event.target.value)}><option value="">Prioridad: Todas</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option></select><button className="button button--ghost"><Funnel />Más filtros</button><div className="view-toggle"><button className={view === "board" ? "active" : ""} onClick={() => onView("board")}><Kanban />Tablero</button><button className={view === "list" ? "active" : ""} onClick={() => onView("list")}><ListBullets />Lista</button></div></section><section className="category-strip">{categories.map((item) => <button key={item._id} onClick={() => onCategory(category === item._id ? "" : item._id)} className={category === item._id ? "active" : ""}><i style={{ background: item.color }} /><span><strong>{item.name}</strong><small>{counts[item._id] || 0} tareas</small></span></button>)}</section>{view === "board" ? <KanbanBoard tasks={tasks} onEdit={onEdit} onCreate={onCreate} onMove={onMove} /> : <TaskList tasks={tasks} onEdit={onEdit} />}</>;
 }
@@ -46,8 +58,17 @@ export function DashboardPage() {
 
   async function saveTask(data) {
     const categoryObject = categories.find((item) => item._id === data.category);
-    if (user.demo) setTasks((current) => data._id ? current.map((task) => task._id === data._id ? { ...data, category: categoryObject } : task) : [...current, { ...data, _id: crypto.randomUUID(), category: categoryObject }]);
-    else { const saved = await api(data._id ? `/tasks/${data._id}` : "/tasks", { method: data._id ? "PUT" : "POST", body: JSON.stringify(data) }); setTasks((current) => data._id ? current.map((task) => task._id === data._id ? saved : task) : [...current, saved]); }
+    if (user.demo) setTasks((current) => {
+      const previous = current.find((task) => task._id === data._id);
+      const saved = { ...data, _id: data._id || crypto.randomUUID(), category: categoryObject };
+      const updated = data._id ? current.map((task) => task._id === data._id ? saved : task) : [...current, saved];
+      const nextDate = previous?.status !== "completed" && saved.status === "completed" ? getNextOccurrence(saved) : null;
+      return nextDate ? [...updated, { ...saved, _id: crypto.randomUUID(), status: "pending", dueDate: nextDate }] : updated;
+    });
+    else {
+      await api(data._id ? `/tasks/${data._id}` : "/tasks", { method: data._id ? "PUT" : "POST", body: JSON.stringify(data) });
+      setTasks(await api("/tasks"));
+    }
     setModal(null);
   }
   async function deleteTask(task) { if (!confirm(`¿Eliminar "${task.title}"?`)) return; if (!user.demo) await api(`/tasks/${task._id}`, { method: "DELETE" }); setTasks((current) => current.filter((item) => item._id !== task._id)); setModal(null); }

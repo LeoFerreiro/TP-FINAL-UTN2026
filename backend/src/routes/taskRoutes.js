@@ -11,6 +11,10 @@ const taskRules = [
   body("status").isIn(["pending", "in_progress", "completed"]),
   body("priority").isIn(["low", "medium", "high"]),
   body("dueDate").isISO8601(),
+  body("recurrence.enabled").optional().isBoolean(),
+  body("recurrence.weekdays").optional().isArray({ max: 7 }),
+  body("recurrence.weekdays.*").optional().isInt({ min: 0, max: 6 }),
+  body("recurrence.endDate").optional({ values: "falsy" }).isISO8601(),
   body("category").isMongoId()
 ];
 
