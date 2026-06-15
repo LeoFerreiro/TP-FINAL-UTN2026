@@ -4,10 +4,14 @@ import { AppError } from "../utils/AppError.js";
 import crypto from "node:crypto";
 
 async function validateCategory(owner, categoryId) {
+  // La categoría debe existir y pertenecer al usuario autenticado; así nadie
+  // puede crear tareas usando categorías de otra cuenta.
   if (!(await categoryRepository.findOwnedById(categoryId, owner))) throw new AppError("Categoría inválida", 400);
 }
 
 function prepareRecurrence(data, currentSeriesId) {
+  // Normaliza la recurrencia antes de persistirla. seriesId agrupa todas las
+  // ocurrencias de una misma repetición para poder limpiarlas juntas.
   if (!data.recurrence?.enabled) return { enabled: false, weekdays: [] };
   const weekdays = [...new Set(data.recurrence.weekdays || [])].sort();
   const dueDate = new Date(data.dueDate);
@@ -19,6 +23,8 @@ function prepareRecurrence(data, currentSeriesId) {
 }
 
 function nextOccurrence(task) {
+  // Busca la próxima fecha semanal permitida. Siete intentos alcanzan porque
+  // los patrones disponibles son días de la semana.
   if (!task.recurrence?.enabled) return null;
   const candidate = new Date(task.dueDate);
   const endDate = new Date(task.recurrence.endDate);
@@ -32,6 +38,8 @@ function nextOccurrence(task) {
 
 export const taskService = {
   list(owner, query) {
+    // Construye filtros opcionales a partir de query params y deja la consulta
+    // concreta en el repository.
     const filters = {};
     if (query.status) filters.status = query.status;
     if (query.priority) filters.priority = query.priority;
@@ -56,6 +64,8 @@ export const taskService = {
     const recurrence = prepareRecurrence(data, current.recurrence?.seriesId);
     const task = await taskRepository.update(id, owner, { ...data, recurrence });
     if (!task) throw new AppError("Tarea no encontrada", 404);
+    // Solo al pasar a "completed" se crea la próxima ocurrencia. Editar una
+    // tarea ya completada no genera duplicados.
     if (current.status !== "completed" && task.status === "completed") {
       const nextDate = nextOccurrence(task);
       if (nextDate && !(await taskRepository.findSeriesOccurrence(owner, recurrence.seriesId, nextDate))) {
@@ -68,6 +78,8 @@ export const taskService = {
     if (!(await taskRepository.remove(id, owner))) throw new AppError("Tarea no encontrada", 404);
   },
   async cleanupCompleted(owner, { ids, all }) {
+    // Limpia tareas completadas seleccionadas o todas. Si alguna pertenece a
+    // una serie recurrente, elimina también sus ocurrencias futuras.
     if (!all && !ids?.length) throw new AppError("Seleccioná al menos una tarea completada", 400);
     const completed = await taskRepository.findCompleted(owner, all ? undefined : ids);
     if (!completed.length) return { deletedCount: 0, stoppedSeries: 0 };

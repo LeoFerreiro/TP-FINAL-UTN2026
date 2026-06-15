@@ -1,5 +1,7 @@
 import { Task } from "../models/Task.js";
 
+// Repository de tareas: concentra las queries, populate, ordenamiento y
+// eliminaciones masivas. Los services deciden cuándo utilizar cada operación.
 export const taskRepository = {
   create: (data) => Task.create(data),
   findAll: (owner, filters = {}) => Task.find({ owner, ...filters }).populate("category").sort({ dueDate: 1 }),
@@ -8,6 +10,8 @@ export const taskRepository = {
   findCompleted: (owner, ids) => Task.find({ owner, status: "completed", ...(ids?.length ? { _id: { $in: ids } } : {}) }),
   update: (id, owner, data) => Task.findOneAndUpdate({ _id: id, owner }, data, { new: true, runValidators: true }).populate("category"),
   remove: (id, owner) => Task.findOneAndDelete({ _id: id, owner }),
+  // Al limpiar una completada recurrente también elimina las ocurrencias de su
+  // serie, lo que funciona como cancelación definitiva de esa repetición.
   removeCompletedAndSeries: (owner, taskIds, seriesIds) => Task.deleteMany({ owner, $or: [{ _id: { $in: taskIds } }, ...(seriesIds.length ? [{ "recurrence.seriesId": { $in: seriesIds } }] : [])] }),
   countByCategory: (category, owner) => Task.countDocuments({ category, owner })
 };

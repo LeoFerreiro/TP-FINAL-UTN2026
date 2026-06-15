@@ -2,6 +2,8 @@ import { categoryRepository } from "../repositories/categoryRepository.js";
 import { taskRepository } from "../repositories/taskRepository.js";
 import { AppError } from "../utils/AppError.js";
 
+// Service: contiene reglas de negocio y coordina repositories. En particular,
+// no permite eliminar categorías que todavía tengan tareas relacionadas.
 export const categoryService = {
   list: (owner) => categoryRepository.findAll(owner),
   create: (owner, data) => categoryRepository.create({ ...data, owner }),

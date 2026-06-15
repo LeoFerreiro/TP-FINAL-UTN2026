@@ -5,17 +5,21 @@ const weekdays = [[1, "Lun"], [2, "Mar"], [3, "Mié"], [4, "Jue"], [5, "Vie"], [
 const empty = { title: "", description: "", status: "pending", priority: "medium", dueDate: new Date().toISOString().slice(0, 10), category: "", recurrence: { enabled: false, weekdays: [], endDate: "" } };
 
 export function TaskModal({ task, initialStatus, categories, onClose, onSave, onDelete }) {
+  // Un mismo modal sirve para crear y editar. Si recibe task, carga sus datos;
+  // si no, inicializa un formulario vacío con la categoría disponible.
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
 
   useEffect(() => setForm(task ? { ...task, category: task.category._id, dueDate: task.dueDate.slice(0, 10), recurrence: { enabled: Boolean(task.recurrence?.enabled), weekdays: task.recurrence?.weekdays || [], endDate: task.recurrence?.endDate?.slice(0, 10) || "" } } : { ...empty, recurrence: { ...empty.recurrence }, status: initialStatus || "pending", category: categories[0]?._id || "" }), [task, initialStatus, categories]);
 
   function toggleDay(day) {
+    // Agrega o quita un día de repetición semanal.
     const selected = form.recurrence.weekdays.includes(day);
     setForm({ ...form, recurrence: { ...form.recurrence, weekdays: selected ? form.recurrence.weekdays.filter((item) => item !== day) : [...form.recurrence.weekdays, day] } });
   }
 
   function submit(event) {
+    // Validaciones de UI para dar feedback inmediato antes de enviar al backend.
     event.preventDefault();
     if (form.recurrence.enabled && !form.recurrence.weekdays.length) return setError("Seleccioná al menos un día de repetición");
     if (form.recurrence.enabled && (!form.recurrence.endDate || form.recurrence.endDate < form.dueDate)) return setError("La fecha final debe ser igual o posterior al primer vencimiento");

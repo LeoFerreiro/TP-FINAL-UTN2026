@@ -7,6 +7,7 @@ function initials(name) {
 }
 
 function optimizeImage(file) {
+  // Reduce y recorta la foto en el navegador antes de enviarla a la API.
   return new Promise((resolve, reject) => {
     const image = new Image();
     const objectUrl = URL.createObjectURL(file);
@@ -37,6 +38,7 @@ export function ProfileView({ user, tasks, categories, onLogout, onUserChange })
   const completed = tasks.filter((task) => task.status === "completed").length;
 
   async function saveAvatar(avatarUrl) {
+    // En demo actualiza localStorage; con usuario real persiste en MongoDB.
     setSaving(true);
     setError("");
     try {
@@ -50,6 +52,7 @@ export function ProfileView({ user, tasks, categories, onLogout, onUserChange })
   }
 
   async function selectImage(event) {
+    // Limpia el input para permitir elegir nuevamente el mismo archivo.
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;

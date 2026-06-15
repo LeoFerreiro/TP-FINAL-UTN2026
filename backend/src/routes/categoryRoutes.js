@@ -5,6 +5,8 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import { authenticate } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 
+// Todas las rutas de categorías son privadas; authenticate se ejecuta antes
+// de validar parámetros y llamar al controller.
 export const categoryRoutes = Router();
 categoryRoutes.use(authenticate);
 categoryRoutes.get("/", asyncHandler(categoryController.list));

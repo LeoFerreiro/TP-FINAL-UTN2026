@@ -1,5 +1,7 @@
 import { taskService } from "../services/taskService.js";
 
+// Controlador HTTP de tareas. req.userId proviene del middleware JWT, por lo
+// que cada operación queda limitada al usuario autenticado.
 export const taskController = {
   async list(req, res) { res.json(await taskService.list(req.userId, req.query)); },
   async get(req, res) { res.json(await taskService.get(req.userId, req.params.id)); },

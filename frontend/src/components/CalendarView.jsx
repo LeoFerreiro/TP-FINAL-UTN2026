@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 export function CalendarView({ tasks, onEdit, onCreate }) {
+  // cursor indica el mes visible. No cambia la ruta; solo recalcula la grilla.
   const [cursor, setCursor] = useState(() => new Date());
   const month = cursor.getMonth();
   const year = cursor.getFullYear();
   const cells = useMemo(() => {
+    // Agrega celdas vacías para alinear el día 1 con su día de la semana.
     const first = new Date(year, month, 1);
     const offset = (first.getDay() + 6) % 7;
     const days = new Date(year, month + 1, 0).getDate();

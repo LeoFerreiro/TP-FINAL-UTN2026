@@ -5,6 +5,8 @@ import { api } from "../api.js";
 import { AuthShell } from "../components/AuthShell.jsx";
 
 export function VerifyEmailPage() {
+  // Lee el token recibido por query string y lo envía al backend para activar
+  // la cuenta. El backend compara contra el hash guardado.
   const [params] = useSearchParams();
   const [state, setState] = useState({ loading: true, error: "" });
   useEffect(() => { api("/auth/verify-email", { method: "POST", body: JSON.stringify({ token: params.get("token") }) }).then(() => setState({ loading: false, error: "" })).catch((err) => setState({ loading: false, error: err.message })); }, [params]);

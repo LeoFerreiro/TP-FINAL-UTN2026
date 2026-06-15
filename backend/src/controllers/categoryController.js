@@ -1,5 +1,7 @@
 import { categoryService } from "../services/categoryService.js";
 
+// Controlador HTTP de categorías: obtiene datos de Express y delega todas las
+// reglas de negocio a categoryService.
 export const categoryController = {
   async list(req, res) { res.json(await categoryService.list(req.userId)); },
   async create(req, res) { res.status(201).json(await categoryService.create(req.userId, req.body)); },

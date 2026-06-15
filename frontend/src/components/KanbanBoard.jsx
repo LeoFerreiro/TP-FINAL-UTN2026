@@ -5,6 +5,8 @@ import { TaskCard } from "./TaskCard.jsx";
 const columns = [{ id: "pending", title: "Pendientes" }, { id: "in_progress", title: "En progreso" }, { id: "completed", title: "Completadas" }];
 
 export function KanbanBoard({ tasks, onEdit, onCreate, onMove, onCleanup }) {
+  // cleanupMode activa checkboxes solo en Completadas para limpiar historial
+  // sin interferir con la edición normal de tarjetas.
   const [cleanupMode, setCleanupMode] = useState(false);
   const [selected, setSelected] = useState([]);
   const [cleaning, setCleaning] = useState(false);
@@ -16,6 +18,8 @@ export function KanbanBoard({ tasks, onEdit, onCreate, onMove, onCleanup }) {
   }
 
   async function cleanup(all) {
+    // La confirmación evita borrar historial por accidente. onCleanup decide si
+    // opera contra el backend real o contra los datos demo locales.
     const amount = all ? tasks.filter((task) => task.status === "completed").length : selected.length;
     if (!amount) return;
     const message = all ? "¿Limpiar todas las tareas completadas? Las series recurrentes relacionadas también se detendrán." : `¿Limpiar ${amount} tarea${amount === 1 ? "" : "s"} seleccionada${amount === 1 ? "" : "s"}? Las recurrencias relacionadas se detendrán.`;

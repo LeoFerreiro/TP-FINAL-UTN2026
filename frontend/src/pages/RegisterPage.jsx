@@ -5,6 +5,8 @@ import { AuthShell } from "../components/AuthShell.jsx";
 import { FormField } from "../components/FormField.jsx";
 
 export function RegisterPage() {
+  // Después del registro no inicia sesión automáticamente: espera que el
+  // usuario valide su correo desde el enlace enviado.
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -21,6 +23,7 @@ export function RegisterPage() {
   }
 
   async function resend() {
+    // Permite reenviar el link si el usuario no recibió el correo original.
     setError("");
     try {
       const data = await api("/auth/resend-verification", { method: "POST", body: JSON.stringify({ email: registeredEmail || form.email }) });

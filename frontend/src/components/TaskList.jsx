@@ -1,5 +1,6 @@
 import { ArrowsClockwise, PencilSimple } from "@phosphor-icons/react";
 
+// Vista alternativa en tabla para revisar tareas en filas.
 export function TaskList({ tasks, onEdit }) {
   return <section className="task-table"><div className="task-table__row task-table__head"><span>Tarea</span><span>Categoría</span><span>Estado</span><span>Prioridad</span><span>Vencimiento</span><span /></div>{tasks.map((task) => <div className="task-table__row" key={task._id}><strong>{task.title}{task.recurrence?.enabled && <ArrowsClockwise className="list-recurrence" aria-label="Tarea recurrente" />}</strong><span className="tag" style={{ "--tag": task.category.color }}>{task.category.name}</span><span>{task.status === "pending" ? "Pendiente" : task.status === "in_progress" ? "En progreso" : "Completada"}</span><span>{task.priority === "low" ? "Baja" : task.priority === "medium" ? "Media" : "Alta"}</span><span>{new Date(`${task.dueDate.slice(0, 10)}T12:00:00`).toLocaleDateString("es-AR")}</span><button className="icon-button" onClick={() => onEdit(task)} aria-label={`Editar ${task.title}`}><PencilSimple /></button></div>)}</section>;
 }

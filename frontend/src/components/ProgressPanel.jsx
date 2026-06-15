@@ -7,6 +7,7 @@ function localDate(value) {
 }
 
 function startOfWeek(date = new Date()) {
+  // La semana del panel siempre va de lunes a domingo.
   const start = new Date(date);
   start.setHours(0, 0, 0, 0);
   start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
@@ -30,6 +31,7 @@ function deliveryStatus(task) {
 }
 
 export function ProgressPanel({ tasks }) {
+  // Calcula el progreso real de la semana actual usando dueDate de cada tarea.
   const weekStart = startOfWeek();
   const weekDays = dayLabels.map((label, index) => {
     const date = new Date(weekStart);
@@ -43,6 +45,7 @@ export function ProgressPanel({ tasks }) {
   const maxTasks = Math.max(1, ...weekDays.map((day) => day.total));
   const weekEnd = weekDays[6].date;
   const weekLabel = `${weekStart.toLocaleDateString("es-AR", { day: "numeric", month: weekStart.getMonth() === weekEnd.getMonth() ? undefined : "short" })} – ${weekEnd.toLocaleDateString("es-AR", { day: "numeric", month: "long" })}`;
+  // Próxima entrega real: la tarea pendiente más cercana del usuario.
   const nextTask = tasks.filter((task) => task.status !== "completed").sort((a, b) => localDate(a.dueDate) - localDate(b.dueDate))[0];
   const status = nextTask ? deliveryStatus(nextTask) : null;
 

@@ -5,6 +5,8 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import { authenticate } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 
+// Reglas reutilizadas por POST y PUT para que crear y editar mantengan el
+// mismo contrato de datos, incluida la configuración de recurrencia.
 const taskRules = [
   body("title").trim().isLength({ min: 2, max: 120 }),
   body("description").optional().trim().isLength({ max: 800 }),
@@ -19,6 +21,7 @@ const taskRules = [
 ];
 
 export const taskRoutes = Router();
+// Desde este punto todas las rutas requieren un JWT válido.
 taskRoutes.use(authenticate);
 taskRoutes.get("/", [query("status").optional().isIn(["pending", "in_progress", "completed"]), query("priority").optional().isIn(["low", "medium", "high"]), query("category").optional().isMongoId(), validate], asyncHandler(taskController.list));
 taskRoutes.post("/cleanup-completed", [body("all").optional().isBoolean(), body("ids").optional().isArray(), body("ids.*").optional().isMongoId(), validate], asyncHandler(taskController.cleanupCompleted));

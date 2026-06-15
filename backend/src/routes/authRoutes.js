@@ -5,6 +5,8 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import { authenticate } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 
+// Las rutas definen URL, método, validaciones y middleware de autenticación.
+// El procesamiento final siempre se delega al controller correspondiente.
 export const authRoutes = Router();
 authRoutes.post("/register", [body("name").trim().isLength({ min: 2, max: 80 }), body("email").isEmail().normalizeEmail(), body("password").isLength({ min: 8 }).matches(/[A-Z]/).matches(/[0-9]/), validate], asyncHandler(authController.register));
 authRoutes.post("/verify-email", [body("token").isString().notEmpty(), validate], asyncHandler(authController.verify));

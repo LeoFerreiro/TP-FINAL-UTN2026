@@ -1,5 +1,7 @@
 import { Brand } from "./Brand.jsx";
 
+// Layout reutilizado por login, registro y verificación de email. Mantiene la
+// misma identidad visual en todas las pantallas públicas.
 export function AuthShell({ eyebrow, title, subtitle, children }) {
   return (
     <main className="auth-page">

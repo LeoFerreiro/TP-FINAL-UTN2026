@@ -14,6 +14,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { demoCategories, demoTasks } from "../data/demoData.js";
 
 function getNextOccurrence(task) {
+  // Replica en modo demo la misma regla de recurrencia que el backend.
   if (!task.recurrence?.enabled) return null;
   const candidate = new Date(`${task.dueDate.slice(0, 10)}T12:00:00`);
   const endDate = new Date(`${task.recurrence.endDate.slice(0, 10)}T23:59:59`);
@@ -26,6 +27,8 @@ function getNextOccurrence(task) {
 }
 
 function TaskWorkspace({ tasks, categories, counts, category, priority, view, onCategory, onPriority, onView, onCreate, onEdit, onMove, onCleanup, showHeading = false }) {
+  // Agrupa toolbar, filtros, categorías y vista tablero/lista para reutilizarlo
+  // tanto en Resumen como en Tareas.
   return <>{showHeading && <div className="page-heading"><div><p className="eyebrow">Organización</p><h2>Mis tareas</h2><p>Creá, priorizá y avanzá cada tarea desde un solo lugar.</p></div></div>}<section className="toolbar"><button className="button button--primary" onClick={() => onCreate("pending")}><Plus size={19} />Nueva tarea</button><select value={category} onChange={(event) => onCategory(event.target.value)}><option value="">Todas las categorías</option>{categories.map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}</select><select value={priority} onChange={(event) => onPriority(event.target.value)}><option value="">Prioridad: Todas</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option></select><button className="button button--ghost"><Funnel />Más filtros</button><div className="view-toggle"><button className={view === "board" ? "active" : ""} onClick={() => onView("board")}><Kanban />Tablero</button><button className={view === "list" ? "active" : ""} onClick={() => onView("list")}><ListBullets />Lista</button></div></section><section className="category-strip">{categories.map((item) => <button key={item._id} onClick={() => onCategory(category === item._id ? "" : item._id)} className={category === item._id ? "active" : ""}><i style={{ background: item.color }} /><span><strong>{item.name}</strong><small>{counts[item._id] || 0} tareas</small></span></button>)}</section>{view === "board" ? <KanbanBoard tasks={tasks} onEdit={onEdit} onCreate={onCreate} onMove={onMove} onCleanup={onCleanup} /> : <TaskList tasks={tasks} onEdit={onEdit} />}</>;
 }
 
@@ -44,19 +47,24 @@ export function DashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Carga inicial. En demo no se llama a la API; se usan datos locales.
     if (user.demo) { setTasks(demoTasks); setCategories(demoCategories); return; }
     Promise.all([api("/tasks"), api("/categories")]).then(([taskData, categoryData]) => { setTasks(taskData); setCategories(categoryData); }).catch((err) => setError(err.message));
   }, [user.demo]);
 
+  // Filtros client-side para búsqueda, categoría y prioridad.
   const filtered = useMemo(() => tasks.filter((task) => (!search || `${task.title} ${task.description}`.toLowerCase().includes(search.toLowerCase())) && (!category || task.category._id === category) && (!priority || task.priority === priority)), [tasks, search, category, priority]);
   const counts = useMemo(() => Object.fromEntries(categories.map((item) => [item._id, tasks.filter((task) => task.category._id === item._id).length])), [categories, tasks]);
   const notifications = useMemo(() => {
+    // Notificaciones derivadas de tareas reales: vencidas o próximas a vencer.
     const now = new Date();
     const tomorrow = new Date(now.getTime() + 36 * 60 * 60 * 1000);
     return tasks.filter((task) => task.status !== "completed" && new Date(task.dueDate) <= tomorrow).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 5).map((task) => { const overdue = new Date(task.dueDate) < now; return { id: task._id, task, tone: overdue ? "danger" : "warning", title: overdue ? "Tarea vencida" : "Próximo vencimiento", message: `${task.title} · ${new Date(task.dueDate).toLocaleDateString("es-AR")}` }; });
   }, [tasks]);
 
   async function saveTask(data) {
+    // Crear/editar tarea. Con backend real se recarga la lista para incluir
+    // ocurrencias recurrentes creadas por el service.
     const categoryObject = categories.find((item) => item._id === data.category);
     if (user.demo) setTasks((current) => {
       const previous = current.find((task) => task._id === data._id);
@@ -74,6 +82,7 @@ export function DashboardPage() {
   }
   async function deleteTask(task) { if (!confirm(`¿Eliminar "${task.title}"?`)) return; if (!user.demo) await api(`/tasks/${task._id}`, { method: "DELETE" }); setTasks((current) => current.filter((item) => item._id !== task._id)); setModal(null); }
   async function cleanupCompleted(ids, all) {
+    // Limpia completadas y detiene series recurrentes asociadas.
     setError("");
     try {
       if (user.demo) {

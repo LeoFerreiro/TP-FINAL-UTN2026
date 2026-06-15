@@ -1,5 +1,7 @@
 import { Category } from "../models/Category.js";
 
+// Todas las operaciones incluyen owner para garantizar aislamiento entre
+// usuarios incluso si alguien intenta adivinar un id de otra cuenta.
 export const categoryRepository = {
   create: (data) => Category.create(data),
   findAll: (owner) => Category.find({ owner }).sort({ name: 1 }),

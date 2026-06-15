@@ -6,11 +6,14 @@ import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage.jsx";
 
 function PrivateRoute({ children }) {
+  // Protege el dashboard: si no hay usuario en contexto vuelve al login.
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
 }
 
 export function App() {
+  // Define las rutas principales del frontend. El backend real se consume desde
+  // los componentes usando el helper api().
   return (
     <BrowserRouter>
       <AuthProvider>

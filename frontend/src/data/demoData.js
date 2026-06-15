@@ -1,3 +1,5 @@
+// Datos de ejemplo usados por el modo demo. No se guardan en MongoDB y permiten
+// probar toda la UI sin registrarse ni iniciar sesión.
 export const demoCategories = [
   { _id: "study", name: "Estudio", color: "#1677ff" },
   { _id: "work", name: "Trabajo", color: "#15a05c" },

@@ -3,6 +3,8 @@ import { connectDatabase } from "../backend/src/config/db.js";
 
 let databasePromise;
 
+// Traduce errores técnicos de MongoDB a mensajes útiles para el usuario sin
+// exponer credenciales, hosts ni datos internos.
 function databaseErrorMessage(error) {
   const message = String(error?.message || error);
   if (/authentication failed|bad auth/i.test(message)) return "MongoDB rechazó el usuario o la contraseña";
@@ -16,6 +18,8 @@ export default async function handler(req, res) {
     return res.status(503).json({ message: "La base de datos del servidor todavía no está configurada" });
   }
 
+  // Reutiliza la conexión en invocaciones calientes de Vercel para evitar abrir
+  // una conexión nueva a MongoDB en cada request.
   databasePromise ||= connectDatabase(process.env.MONGODB_URI);
   try {
     await databasePromise;

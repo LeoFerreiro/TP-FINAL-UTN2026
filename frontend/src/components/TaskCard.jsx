@@ -3,6 +3,8 @@ import { ArrowsClockwise, CalendarBlank, CheckCircle, DotsSixVertical, Flag } fr
 const priorityLabels = { low: "Baja", medium: "Media", high: "Alta" };
 
 export function TaskCard({ task, onEdit, onMove, selectable = false, selected = false, onSelect }) {
+  // selectable se usa únicamente durante la limpieza de completadas; en ese
+  // modo hacer click selecciona en vez de abrir el modal.
   const complete = task.status === "completed";
   function openWithKeyboard(event) {
     if (event.key === "Enter" || event.key === " ") {

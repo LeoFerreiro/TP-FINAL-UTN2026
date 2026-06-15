@@ -5,6 +5,7 @@ import { FormField } from "../components/FormField.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export function LoginPage() {
+  // Maneja el formulario de login y delega la sesión al AuthContext.
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,8 @@
 import { PencilSimple, Plus, Trash, X } from "@phosphor-icons/react";
 import { useState } from "react";
+
+// Modal para CRUD de categorías. Bloquea eliminar una categoría con tareas
+// asociadas usando el contador calculado en DashboardPage.
 export function CategoryManager({ categories, counts, onClose, onSave, onDelete }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: "", color: "#1677ff" });

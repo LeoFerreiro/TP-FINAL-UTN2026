@@ -2,18 +2,22 @@ import { Bell, Check, List, MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 
 export function Topbar({ title, user, search, onSearch, onMenu, notifications, onOpenTask, onOpenProfile }) {
+  // Mantiene estado local de notificaciones leídas. El origen de la lista se
+  // calcula en DashboardPage según tareas próximas o vencidas.
   const [open, setOpen] = useState(false);
   const [read, setRead] = useState([]);
   const wrapper = useRef(null);
   const unread = notifications.filter((item) => !read.includes(item.id));
 
   useEffect(() => {
+    // Cierra el menú al hacer click fuera del contenedor.
     function close(event) { if (!wrapper.current?.contains(event.target)) setOpen(false); }
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
   function openNotification(item) {
+    // Al abrir una notificación de tarea también abre el modal de edición.
     setRead((current) => current.includes(item.id) ? current : [...current, item.id]);
     setOpen(false);
     if (item.task) onOpenTask(item.task);

@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 
 function createTransporter() {
+  // EMAIL_MODE=json se usa para pruebas locales sin enviar correos reales.
   if (process.env.EMAIL_MODE === "json") return nodemailer.createTransport({ jsonTransport: true });
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     throw new Error("Configuración SMTP incompleta");
@@ -14,6 +15,8 @@ function createTransporter() {
 }
 
 export async function sendVerificationEmail({ email, name, token }) {
+  // El enlace apunta al frontend; esa pantalla lee el token y llama al backend
+  // para activar definitivamente la cuenta.
   const verificationUrl = `${process.env.FRONTEND_URL}/verificar-email?token=${token}`;
   const info = await createTransporter().sendMail({
     from: process.env.SMTP_FROM || "Impulso <no-reply@impulso.local>",
