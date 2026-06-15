@@ -18,13 +18,9 @@ Monorepo con frontend y backend:
 
 ## Credenciales de usuario de prueba
 
-Pendiente de completar con una cuenta real ya verificada:
+Las credenciales reales de prueba se entregan por privado junto con la entrega para no publicar contrasenas en GitHub.
 
-- Email: `pendiente@impulso.app`
-- Password: `Pendiente123`
-- Estado: mail verificado
-
-> Para cerrar esta seccion, crear una cuenta desde la web con un correo real, verificarla desde el email recibido y reemplazar estos datos por las credenciales definitivas.
+- Estado: usuario de prueba verificado
 
 ## Estructura del proyecto
 
