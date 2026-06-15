@@ -1,5 +1,23 @@
-import { Bell, List, MagnifyingGlass } from "@phosphor-icons/react";
+import { Bell, Check, List, MagnifyingGlass, X } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
 
-export function Topbar({ user, search, onSearch, onMenu }) {
-  return <header className="topbar"><button className="mobile-menu" onClick={onMenu} aria-label="Abrir navegación"><List size={24} /></button><h1>Resumen</h1><label className="search"><MagnifyingGlass size={20} /><input aria-label="Buscar tareas o categorías" value={search} onChange={(e) => onSearch(e.target.value)} placeholder="Buscar tareas, categorías…" /></label><button className="icon-button" aria-label="Notificaciones"><Bell size={22} /><i>3</i></button><div className="profile-chip"><span>{user.name.split(" ").map((part) => part[0]).slice(0, 2).join("")}</span><strong>{user.name}</strong></div></header>;
+export function Topbar({ title, user, search, onSearch, onMenu, notifications, onOpenTask, onOpenProfile }) {
+  const [open, setOpen] = useState(false);
+  const [read, setRead] = useState([]);
+  const wrapper = useRef(null);
+  const unread = notifications.filter((item) => !read.includes(item.id));
+
+  useEffect(() => {
+    function close(event) { if (!wrapper.current?.contains(event.target)) setOpen(false); }
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
+
+  function openNotification(item) {
+    setRead((current) => current.includes(item.id) ? current : [...current, item.id]);
+    setOpen(false);
+    if (item.task) onOpenTask(item.task);
+  }
+
+  return <header className="topbar"><button className="mobile-menu" onClick={onMenu} aria-label="Abrir navegación"><List size={24} /></button><h1>{title}</h1><label className="search"><MagnifyingGlass size={20} /><input aria-label="Buscar tareas o categorías" value={search} onChange={(e) => onSearch(e.target.value)} placeholder="Buscar tareas, categorías…" /></label><div className="notifications" ref={wrapper}><button className="icon-button" aria-label="Notificaciones" aria-expanded={open} onClick={() => setOpen((value) => !value)}><Bell size={22} />{unread.length > 0 && <i>{unread.length}</i>}</button>{open && <section className="notification-menu"><header><div><strong>Notificaciones</strong><span>{unread.length} sin leer</span></div><button className="icon-button" onClick={() => setOpen(false)} aria-label="Cerrar notificaciones"><X /></button></header>{notifications.length ? <div className="notification-list">{notifications.map((item) => <button key={item.id} className={read.includes(item.id) ? "read" : ""} onClick={() => openNotification(item)}><span className={`notification-dot notification-dot--${item.tone}`} /><div><strong>{item.title}</strong><small>{item.message}</small></div>{read.includes(item.id) && <Check />}</button>)}</div> : <p className="notification-empty">No tenés novedades.</p>}<footer><button onClick={() => setRead(notifications.map((item) => item.id))}>Marcar todas como leídas</button></footer></section>}</div><button className="profile-chip profile-chip--button" onClick={onOpenProfile}><span>{user.name.split(" ").map((part) => part[0]).slice(0, 2).join("")}</span><strong>{user.name}</strong></button></header>;
 }
