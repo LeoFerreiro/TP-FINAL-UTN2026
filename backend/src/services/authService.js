@@ -6,6 +6,7 @@ import { sendVerificationEmail } from "../utils/email.js";
 import { signAccessToken } from "../utils/jwt.js";
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+const publicUser = (user) => ({ id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl || "" });
 
 async function issueVerificationEmail(user) {
   const token = crypto.randomBytes(32).toString("hex");
@@ -42,11 +43,18 @@ export const authService = {
     const user = await userRepository.findByEmail(email);
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) throw new AppError("Credenciales inválidas", 401);
     if (!user.isVerified) throw new AppError("Verificá tu correo antes de ingresar", 403);
-    return { token: signAccessToken(user.id), user: { id: user.id, name: user.name, email: user.email } };
+    return { token: signAccessToken(user.id), user: publicUser(user) };
   },
   async profile(userId) {
     const user = await userRepository.findById(userId);
     if (!user) throw new AppError("Usuario no encontrado", 404);
-    return { id: user.id, name: user.name, email: user.email };
+    return publicUser(user);
+  },
+  async updateAvatar(userId, avatarUrl) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new AppError("Usuario no encontrado", 404);
+    user.avatarUrl = avatarUrl || undefined;
+    await userRepository.save(user);
+    return publicUser(user);
   }
 };

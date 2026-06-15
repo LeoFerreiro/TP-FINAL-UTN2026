@@ -25,7 +25,13 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  const value = useMemo(() => ({ user, login, enterDemo, logout }), [user]);
+  function updateUser(changes) {
+    const nextUser = { ...user, ...changes };
+    localStorage.setItem("impulso_user", JSON.stringify(nextUser));
+    setUser(nextUser);
+  }
+
+  const value = useMemo(() => ({ user, login, enterDemo, logout, updateUser }), [user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

@@ -11,3 +11,4 @@ authRoutes.post("/verify-email", [body("token").isString().notEmpty(), validate]
 authRoutes.post("/resend-verification", [body("email").isEmail().normalizeEmail(), validate], asyncHandler(authController.resend));
 authRoutes.post("/login", [body("email").isEmail().normalizeEmail(), body("password").isString().notEmpty(), validate], asyncHandler(authController.login));
 authRoutes.get("/me", authenticate, asyncHandler(authController.me));
+authRoutes.patch("/profile/avatar", authenticate, [body("avatarUrl").custom((value) => value === "" || (typeof value === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(value) && value.length <= 500000)).withMessage("La imagen debe ser JPG, PNG o WebP y pesar menos de 350 KB"), validate], asyncHandler(authController.updateAvatar));
