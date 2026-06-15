@@ -1,13 +1,56 @@
-# Impulso
+﻿# Impulso
 
-Trabajo integrador Full Stack: gestor de tareas con categorías, autenticación JWT y verificación por correo.
+Trabajo integrador final Full Stack: gestor de tareas con categorias, recurrencias, autenticacion JWT y verificacion por correo.
 
-## Estructura
+## Repositorio GitHub
 
-- `frontend/`: React + Vite, interfaz responsiva de 320 px a 2000 px.
-- `backend/`: Node.js + Express + MongoDB, arquitectura en capas.
+Monorepo con frontend y backend:
 
-## Inicio rápido
+- Repo completo: https://github.com/LeoFerreiro/TP-FINAL-UTN2026
+- Backend: https://github.com/LeoFerreiro/TP-FINAL-UTN2026/tree/main/backend
+- Frontend: https://github.com/LeoFerreiro/TP-FINAL-UTN2026/tree/main/frontend
+
+## Despliegues publicos
+
+- Frontend Web: https://tp-final-leonardo.vercel.app
+- Backend API: https://tp-final-leonardo.vercel.app/api
+- Health check API: https://tp-final-leonardo.vercel.app/api/health
+
+## Credenciales de usuario de prueba
+
+Pendiente de completar con una cuenta real ya verificada:
+
+- Email: `pendiente@impulso.app`
+- Password: `Pendiente123`
+- Estado: mail verificado
+
+> Para cerrar esta seccion, crear una cuenta desde la web con un correo real, verificarla desde el email recibido y reemplazar estos datos por las credenciales definitivas.
+
+## Estructura del proyecto
+
+```text
+TP_FINAL_UTN2026/
+|- api/                 # Adaptador serverless de Vercel para Express
+|- backend/             # Node.js + Express + MongoDB
+`- frontend/            # React + Vite
+```
+
+## Estructura backend solicitada
+
+```text
+backend/src/
+|- config/
+|  `- db.js
+|- models/
+|- repositories/
+|- services/
+|- controllers/
+|- routes/
+|- middleware/
+`- utils/
+```
+
+## Instalacion local
 
 ```bash
 npm run install:all
@@ -15,23 +58,29 @@ npm run dev:backend
 npm run dev:frontend
 ```
 
-Antes de iniciar, copiá los archivos `.env.example` como `.env` dentro de cada proyecto y completá sus valores.
+Antes de iniciar, copiar los archivos `.env.example` como `.env` dentro de `backend/` y `frontend/`, y completar sus valores.
 
-## Funcionalidad
+## Scripts utiles
 
-- Registro con contraseña segura y email de activación mediante Nodemailer.
-- Login con JWT Bearer y expiración.
+```bash
+npm test
+npm run build --prefix frontend
+```
+
+## Funcionalidad principal
+
+- Registro con email de activacion mediante Nodemailer.
+- Login con JWT Bearer y expiracion.
+- Hash de contrasenas con bcrypt.
 - CRUD completo de tareas.
-- CRUD de categorías relacionadas mediante referencia Mongoose y `populate`.
-- Filtros, búsqueda, tablero Kanban y vista de lista.
+- CRUD de categorias relacionadas con tareas mediante referencias Mongoose y `populate`.
+- Tareas recurrentes por dias de la semana hasta una fecha limite.
+- Limpieza de tareas completadas, incluyendo detencion de series recurrentes.
+- Perfil con foto editable.
+- Dashboard con progreso semanal calculado desde tareas reales.
 - Rutas protegidas y aislamiento de datos por usuario.
 
-## Despliegue sugerido
+## Documentacion adicional
 
-- Frontend: Vercel o Netlify. Definir `VITE_API_URL`.
-- Backend: Render o Railway. Configurar variables de entorno y MongoDB Atlas.
-- En `FRONTEND_URL` indicar la URL pública del frontend para CORS y los enlaces de verificación.
-
-Las URLs públicas y credenciales de evaluación deben agregarse aquí una vez realizados los despliegues.
-
-El archivo `vercel.json` de la raíz configura Vercel para instalar y compilar exclusivamente `frontend/` dentro del monorepo y redirige las rutas de React Router a `index.html`.
+- Backend y endpoints: [`backend/README.md`](backend/README.md)
+- Frontend: [`frontend/README.md`](frontend/README.md)

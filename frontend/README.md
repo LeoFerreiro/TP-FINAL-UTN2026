@@ -1,8 +1,8 @@
 # Impulso Frontend
 
-SPA responsiva construida con React 19 y Vite. Incluye registro, login, verificación de correo, tablero Kanban, vista de lista, filtros y CRUD de tareas y categorías.
+SPA responsiva construida con React y Vite. Integra completamente la API Express desplegada en Vercel.
 
-## Instalación
+## Instalacion
 
 ```bash
 npm install
@@ -10,18 +10,57 @@ copy .env.example .env
 npm run dev
 ```
 
-La aplicación queda disponible en `http://localhost:5173`. Configurá `VITE_API_URL` con la URL pública o local del backend.
+La aplicacion local queda disponible en `http://localhost:5173`.
+
+## Variables de entorno
+
+```env
+VITE_API_URL=http://localhost:4000/api
+```
+
+En produccion, como frontend y backend estan en el mismo dominio de Vercel, puede usarse `/api`.
+
+## URL publica
+
+- Web: https://tp-final-leonardo.vercel.app
+
+## Pantallas
+
+- Registro.
+- Login.
+- Verificacion de correo.
+- Resumen con progreso semanal real.
+- Tablero Kanban.
+- Vista de lista.
+- Calendario.
+- Perfil con foto editable.
+- Modal de tareas.
+- Modal de categorias.
+
+## Funcionalidad
+
+- Registro/login integrado con JWT.
+- CRUD de tareas.
+- CRUD de categorias.
+- Tareas recurrentes por dias de la semana.
+- Limpieza de tareas completadas.
+- Notificaciones desplegables.
+- Busqueda y filtros.
+- Modo demo local.
 
 ## Scripts
 
-- `npm run dev`: servidor de desarrollo.
-- `npm run build`: compilación de producción.
-- `npm run preview`: vista previa del build.
+```bash
+npm run dev
+npm run build
+npm run preview
+```
 
 ## Responsive
 
-El layout funciona entre 320 px y 2000 px. En móvil, el sidebar se transforma en un drawer, los formularios se apilan y el Kanban usa desplazamiento horizontal por columnas.
+La interfaz esta preparada para funcionar desde 320 px hasta 2000 px. En mobile:
 
-## Modo demo
-
-Desde el login puede ingresarse a un modo demo local para revisar la interfaz sin una base de datos activa. El flujo normal usa completamente la API configurada.
+- El sidebar pasa a drawer.
+- Formularios y tarjetas se apilan.
+- El Kanban usa scroll horizontal por columnas.
+- Calendario y filtros se adaptan al ancho disponible.
